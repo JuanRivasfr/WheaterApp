@@ -5,6 +5,7 @@ const Home = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [dateF, setDateF] = useState('');
   const [dateT, setDateT] = useState('');
+  const [dateHours, setDateHours] = useState('');
 
   const handleInputChange = (event) => {
     setSearchTerm(event.target.value);
@@ -31,7 +32,7 @@ const Home = () => {
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        const response = await fetch('http://api.weatherapi.com/v1/forecast.json?key=4c9a9aef03624a3f9b7133549242110&q=Bucaramanga&lang=es&days=1');
+        const response = await fetch('http://api.weatherapi.com/v1/forecast.json?key=4c9a9aef03624a3f9b7133549242110&q=Bucaramanga&days=1');
         const result = await response.json();
         setData(result);
 
@@ -48,11 +49,26 @@ const Home = () => {
     }
   }, [data]);
 
+  useEffect(() => {
+    if (data) {
+      const fData = data.forecast.forecastday[0].hour.map((item) => {
+        let [fecha, hora] = item.time.split(' ');
+        return {
+          temp: item.temp_c,
+          hora: hora,
+          img: item.condition.icon
+        }
+      })
+      setDateHours(fData)
+    }
+
+
+  }, [data]);
 
 
   const handleButtonClick = async () => {
     try {
-      const response = await fetch(`http://api.weatherapi.com/v1/forecast.json?key=4c9a9aef03624a3f9b7133549242110&q=${searchTerm}&lang=es&days=1`);
+      const response = await fetch(`http://api.weatherapi.com/v1/forecast.json?key=4c9a9aef03624a3f9b7133549242110&q=${searchTerm}&days=1`);
       const result = await response.json();
       setData(result);
     } catch (error) {
@@ -87,7 +103,7 @@ const Home = () => {
               <p>{data.current.is_day ? 'Day' : 'Nigth'}</p>
             </div>
           </section>
-          <section className='mx-4 my-4'>
+          <section className='mx-4 mt-4 flex flex-col gap-y-4'>
             <div className=' flex justify-between text-md'>
               <div className='bg-white w-[110px] py-2 rounded-lg flex justify-center'>
                 <p>Today</p>
@@ -99,16 +115,65 @@ const Home = () => {
                 <p>10 days</p>
               </div>
             </div>
-            <div>
-              <div className='bg-searchC'>
-                <div>
-                  <img src="/air.svg" alt="" />
+            <div className='flex flex-wrap justify-between gap-y-4'>
+              <div className='bg-searchC flex justify-center gap-x-4 items-center w-[48%] rounded-xl bg-opacity-30 py-1'>
+                <div className='bg-white rounded-full w-[30px] h-[30px] flex justify-center items-center '>
+                  <img src="/air.svg" alt="" className='w-[70%]' />
                 </div>
-                <div>
+                <div className='text-sm'>
                   <p>Wind speed</p>
                   <p>{data.current.wind_kph}km/h</p>
                 </div>
               </div>
+              <div className='bg-searchC flex justify-center gap-x-4 items-center w-[48%] rounded-xl bg-opacity-30 py-1'>
+                <div className='bg-white rounded-full w-[30px] h-[30px] flex justify-center items-center '>
+                  <img src="/rainy.svg" alt="" className='w-[70%]' />
+                </div>
+                <div className='text-sm'>
+                  <p>Rain chance</p>
+                  <p>{data.forecast.forecastday[0].day.daily_chance_of_rain}%</p>
+                </div>
+              </div>
+              <div className='bg-searchC flex justify-center gap-x-4 items-center w-[48%] rounded-xl bg-opacity-30 py-1'>
+                <div className='bg-white rounded-full w-[30px] h-[30px] flex justify-center items-center '>
+                  <img src="/waves.svg" alt="" className='w-[70%]' />
+                </div>
+                <div className='text-sm'>
+                  <p>Pressure</p>
+                  <p>{data.current.pressure_mb} hpa</p>
+                </div>
+              </div>
+              <div className='bg-searchC flex justify-center gap-x-4 items-center w-[48%] rounded-xl bg-opacity-30 py-1'>
+                <div className='bg-white rounded-full w-[30px] h-[30px] flex justify-center items-center '>
+                  <img src="/light_mode.svg" alt="" className='w-[70%]' />
+                </div>
+                <div className='text-sm'>
+                  <p>UV index</p>
+                  <p>{data.current.uv}</p>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section className='mx-4 mt-4 bg-searchC bg-opacity-30 flex flex-col rounded-xl gap-y-2 py-2 px-2'>
+            <div className='flex gap-x-2 flex items-center'>
+              <div className='bg-white rounded-full w-[30px] h-[30px] flex justify-center items-center '>
+                <img src="/rainy.svg" alt="" className='w-[70%]' />
+              </div>
+              <p>Hourly forecast</p>
+            </div>
+            <div className='flex overflow-x-scroll gap-x-4'>
+              {dateHours ? (
+                dateHours.map((val) => {
+                  return (
+                    <div className='flex flex-col items-center justify-center text-sm gap-y-1'>
+                      <p>{val.hora}</p>
+                      <img src={val.img} alt="" />
+                      <p>{val.temp}°</p>
+                    </div>
+                  )
+                })
+              ) : "Loading ..."}
+
             </div>
           </section>
         </div>
