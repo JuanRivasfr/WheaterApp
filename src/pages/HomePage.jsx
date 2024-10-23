@@ -43,7 +43,7 @@ const Home = () => {
   const fetchData = async (location) => {
     try {
       const [result, result1] = await Promise.all([
-        fetch(`http://api.weatherapi.com/v1/forecast.json?key=4c9a9aef03624a3f9b7133549242110&q=${location}&days=1`).then(res => res.json()),
+        fetch(`https://api.weatherapi.com/v1/forecast.json?key=4c9a9aef03624a3f9b7133549242110&q=${location}&days=1`).then(res => res.json()),
         fetch(`https://api.weatherapi.com/v1/forecast.json?key=4c9a9aef03624a3f9b7133549242110&q=${location}&days=7`).then(res => res.json())
       ]);
 
